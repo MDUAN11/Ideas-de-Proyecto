@@ -12,6 +12,8 @@ Voy a utilizar la terminal Git Bash para ejecutar los comandos, además de herra
 
 IQ-TREE 2: para la inferencia filogenética y el cálculo de Gene Concordance Factors (GCF).
 
+Atom: para editar y revisar las secuencias en formato FASTA antes de procesarlas
+
 MUSCLE: para realizar alineamientos múltiples de secuencias.
 
 FigTree: para visualizar y comparar árboles filogenéticos.
