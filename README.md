@@ -1,27 +1,3 @@
-#Q1. En que organismo o grupo de organismo vas a trabajar ?
-
-Voy a trabajar en un grupo de serpientes pertenecientes a la familia Boidae, que incluye especies como las boas. 
-
-#Q2. Brevemente describe que piensas hacer en tu proyecto?
-
-En mi proyecto planeo reconstruir una filogenia del grupo Boidae a partir de secuencias genéticas. Una vez obtenidos los árboles filogenéticos, voy a analizar los Gene Concordance Factors (GCF) para evaluar el nivel de concordancia entre los diferentes genes y la topología del árbol principal. Esto permitirá identificar conflictos filogenéticos y comprender mejor la evolución de este grupo.
-
-#Q3. Que programas voy a usar en mi proyecto. 
-
-Voy a utilizar la terminal Git Bash para ejecutar los comandos, además de herramientas bioinformáticas como:
-
-IQ-TREE 2: para la inferencia filogenética y el cálculo de Gene Concordance Factors (GCF).
-
-Atom: para editar y revisar las secuencias en formato FASTA antes de procesarlas
-
-MUSCLE: para realizar alineamientos múltiples de secuencias.
-
-FigTree: para visualizar y comparar árboles filogenéticos.
-
-#Q4. Sube una foto que represente tu organismo o grupo de organismo.
-
-![Serpiente Boidae](https://t3.ftcdn.net/jpg/01/62/97/78/240_F_162977836_TO60jAubuhvWeNfBRHfTNzxGzwqYTc7m.jpg)
-
 # Reconstrucción filogenética de genes ortólogos en la familia Boidae
 
 Este proyecto se centra en la reconstrucción filogenética de serpientes pertenecientes a la familia **Boidae**, analizando tres genes ortólogos mitocondriales: **COX3**, **ND4L** y **ND4**. Las secuencias se descargan desde la base de datos NCBI, se alinean con MUSCLE y se analizan filogenéticamente con IQ-TREE. Finalmente, los árboles generados son visualizados con FigTree.
@@ -87,8 +63,7 @@ rm -r ncbi_dataset
 
 ### Organizar secuencias
 ```bash
-mkdir SECUENCIAS
-mv COX3.fa ND4L.fa ND4.fa SECUENCIAS/
+cat *.fa > SECUENCIAS/
 ```
 
 ### Transferir a máquina local y editar
@@ -146,7 +121,7 @@ No aplica despliegue en vivo. Todos los análisis se realizan en entorno local/s
 
 ## Autores
 
-- **[Tu nombre completo]** — Análisis bioinformático y redacción del proyecto
+- **[MIAO DUAN JIANG]** — Análisis bioinformático y redacción del proyecto
 
 ---
 
@@ -158,7 +133,7 @@ Este proyecto se desarrolla con fines educativos en la carrera de Bioingeniería
 
 ## Agradecimientos
 
-- A los docentes del curso de Herramientas Bioinformáticas  
+- Al docent del curso de BIOTECNOLOGÍA Y HERR BIOINFOR [DANIEL CHAVEZ]  
 - A NCBI por el acceso gratuito a datos genéticos  
 - A las herramientas de software libre utilizadas en este trabajo
 
