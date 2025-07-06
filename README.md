@@ -1,252 +1,119 @@
 # Reconstrucción filogenética de genes ortólogos en la familia Boidae
 
-Este proyecto se centra en la reconstrucción filogenética de serpientes pertenecientes a la familia **Boidae**, analizando tres genes ortólogos mitocondriales: **COX3**, **ND4L** y **ND4**. Las secuencias se descargan desde la base de datos NCBI, se alinean con MUSCLE y se analizan filogenéticamente con IQ-TREE. Finalmente, los árboles generados son visualizados con FigTree.
+Este proyecto se centra en la reconstrucción filogenética de serpientes pertenecientes a la familia **Boidae**, analizando tres genes ortólogos: **FAP**, **FMNL2** e **IFIH1**. Las secuencias se descargan desde la base de datos NCBI, se alinean con **MUSCLE** y se analizan filogenéticamente con **IQ-TREE 2**. Finalmente, los árboles generados son visualizados con **FigTree**.
 
 ---
 
 ## Comenzando
 
-Este instructivo te permitirá reproducir el análisis en una supercomputadora, desde la descarga de secuencias hasta la visualización de árboles filogenéticos.
+Este instructivo te permitirá reproducir el análisis completo, desde la descarga de secuencias hasta la visualización de los árboles filogenéticos.
 
 ---
 
 ## Requisitos previos
 
-- Acceso a una supercomputadora con ambiente Linux  
+- Acceso a una supercomputadora con sistema operativo Linux  
 - Git Bash o terminal habilitada  
 - Programas:
-  - `datasets` de NCBI
-  - `MUSCLE` para alineamientos
-  - `IQ-TREE 2` para inferencia filogenética
-  - `FigTree` para visualización de árboles
+  - [`datasets`](https://www.ncbi.nlm.nih.gov/datasets/) de NCBI
+  - [`MUSCLE`](https://www.drive5.com/muscle/) para alineamientos
+  - [`IQ-TREE 2`](http://www.iqtree.org/) para inferencia filogenética
+  - [`FigTree`](http://tree.bio.ed.ac.uk/software/figtree/) para visualización de árboles
   - `Atom` (opcional) para edición de archivos FASTA
 
 ---
 
-## Instalación y ejecución
+## Estructura del proyecto
 
-```bash
-# 1. Conexión a la supercomputadora
-ssh dechavez@hoffman2.idre.ucla.edu
-
-# 2. Solicitar nodo
-qrsh
-
-# 3. Ir al directorio de trabajo
-cd $SCRATCH/Bioinformatica-PUCE/HerrBio/MOLS
-<<<<<<< HEAD
-=======
-
-# 4. Crear y preparar el entorno
-mkdir IDEA-DE-PROYECTO
-cp datasets IDEA-DE-PROYECTO/
-cd IDEA-DE-PROYECTO/
+```
+Ideas-de-Proyecto/
+│
+├── Data/
+│   ├── FAP.fa
+│   ├── FMNL2.fa
+│   ├── IFIH1.fa
+│   └── Alltrees.tree
+│
+├── Scripts/
+│   ├── PROGRAMA.sh       # Alineamiento con MUSCLE
+│   └── PROGRAMA2.sh      # Construcción de árboles con IQ-TREE
+│
+└── README.md
 ```
 
-### Descarga de genes ortólogos
+---
+
+## Descarga y alineamiento de secuencias
+
+### Descarga de genes ortólogos (ejemplo)
 ```bash
-./datasets download gene symbol COX3 --ortholog Boidae --filename COX3_Boidae.zip
-./datasets download gene symbol ND4L --ortholog Boidae --filename ND4L_Boidae.zip
-./datasets download gene symbol ND4 --ortholog Boidae --filename ND4_Boidae.zip
+./datasets download gene symbol FAP --ortholog Boidae --filename FAP_Boidae.zip
+./datasets download gene symbol FMNL2 --ortholog Boidae --filename FMNL2_Boidae.zip
+./datasets download gene symbol IFIH1 --ortholog Boidae --filename IFIH1_Boidae.zip
 ```
 
-### Procesamiento de cada archivo ZIP
+### Extracción y organización
 ```bash
-# COX3
-unzip COX3_Boidae.zip
-cd ncbi_dataset/data
-mv rna.fna COX3.fa
-cp COX3.fa ../../../
-cd ../../../
-rm -r ncbi_dataset
-
-# (Repetir para ND4L y ND4)
+unzip FAP_Boidae.zip
+mv ncbi_dataset/data/rna.fna FAP.fa
+# Repetir para FMNL2 e IFIH1
+mkdir Data
+mv FAP.fa FMNL2.fa IFIH1.fa Data/
 ```
 
-### Organizar secuencias
-```bash
-cat *.fa > SECUENCIAS/
-```
+---
 
-### Transferir a máquina local y editar
-```bash
-scp -r dechavez@hoffman2.idre.ucla.edu:/u/scratch/d/dechavez/Bioinformatica-PUCE/HerrBio/MOLS/IDEA-DE-PROYECTO/SECUENCIAS ./
-# editar con Atom
-scp -r ./SECUENCIAS dechavez@hoffman2.idre.ucla.edu:/u/scratch/d/dechavez/Bioinformatica-PUCE/HerrBio/MOLS/IDEA-DE-PROYECTO/
-```
+## Alineamiento y análisis filogenético
 
-### Alineamiento y análisis
+### Script 1 – Alineamiento con MUSCLE (`PROGRAMA.sh`)
 ```bash
-cd SECUENCIAS
-cp ../../muscle3.8.31_i86linux64 ./
-
-# Alinear con MUSCLE
-for gene in *.fa ; do
-  ./muscle3.8.31_i86linux64 -in $gene -out muscle_$gene -maxiters 1 -diags
+cd Data
+for archivo in *.fa ; do
+  ./muscle3.8.31_i86linux64 -in $archivo -out aligned_$archivo -maxiters 1 -diags
 done
+```
 
-# IQ-TREE
+### Script 2 – Árboles con IQ-TREE (`PROGRAMA2.sh`)
+```bash
 module load iqtree/2.2.2.6
-for muscle in muscle_* ; do
-  iqtree2 -s ${muscle}
+for alineado in aligned_* ; do
+  iqtree2 -s $alineado
 done
-
-# Unir árboles
-cat *.treefile > Alltrees.tree
-
----
-
-## Pruebas realizadas
-
-- Se ejecutaron alineamientos individuales para los tres genes.  
-- Se generaron árboles filogenéticos independientes para cada gen.  
-- Los archivos `.tree` fueron visualizados con FigTree.
-
----
-
-## Despliegue
-
-No aplica despliegue en vivo. Todos los análisis se realizan en entorno local/supercomputadora.
-
----
-
-## Construido con
-
-- [MUSCLE](https://www.drive5.com/muscle/)
-- [IQ-TREE 2](http://www.iqtree.org/)
-- [FigTree](http://tree.bio.ed.ac.uk/software/figtree/)
-- [NCBI datasets CLI](https://www.ncbi.nlm.nih.gov/datasets/)
-- [Atom](https://atom.io/)
-
----
-
-## Autores
-
-- **[MIAO DUAN JIANG]** — Análisis bioinformático y redacción del proyecto
-
----
-
-## Licencia
-
-Este proyecto se desarrolla con fines educativos en la carrera de Bioingeniería – PUCE.
-
----
-
-## Agradecimientos
-
-- Al docent del curso de BIOTECNOLOGÍA Y HERR BIOINFOR [DANIEL CHAVEZ]  
-- A NCBI por el acceso gratuito a datos genéticos  
-- A las herramientas de software libre utilizadas en este trabajo
-
----
-
-## Imagen del organismo
-
-![Serpiente Boidae](https://t3.ftcdn.net/jpg/01/62/97/78/240_F_162977836_TO6ejAubuhvNeNFBRhfTNxGzwqYTc7m.jpg)
->>>>>>> 4434b9ba691ca049a51a17c6a91abb191c156978
-
-# 4. Crear y preparar el entorno
-mkdir IDEA-DE-PROYECTO
-cp datasets IDEA-DE-PROYECTO/
-cd IDEA-DE-PROYECTO/
-```
-
-### Descarga de genes ortólogos
-```bash
-./datasets download gene symbol COX3 --ortholog Boidae --filename COX3_Boidae.zip
-./datasets download gene symbol ND4L --ortholog Boidae --filename ND4L_Boidae.zip
-./datasets download gene symbol ND4 --ortholog Boidae --filename ND4_Boidae.zip
-```
-
-### Procesamiento de cada archivo ZIP
-```bash
-# COX3
-unzip COX3_Boidae.zip
-cd ncbi_dataset/data
-mv rna.fna COX3.fa
-cp COX3.fa ../../../
-cd ../../../
-rm -r ncbi_dataset
-
-# (Repetir para ND4L y ND4)
-```
-
-### Organizar secuencias
-```bash
-mkdir SECUENCIAS
-mv COX3.fa ND4L.fa ND4.fa SECUENCIAS/
-```
-
-### Transferir a máquina local y editar
-```bash
-scp -r dechavez@hoffman2.idre.ucla.edu:/u/scratch/d/dechavez/Bioinformatica-PUCE/HerrBio/MOLS/IDEA-DE-PROYECTO/SECUENCIAS ./
-# editar con Atom
-scp -r ./SECUENCIAS dechavez@hoffman2.idre.ucla.edu:/u/scratch/d/dechavez/Bioinformatica-PUCE/HerrBio/MOLS/IDEA-DE-PROYECTO/
-```
-
-### Alineamiento y análisis
-```bash
-cd SECUENCIAS
-cp ../../muscle3.8.31_i86linux64 ./
-
-# Alinear con MUSCLE
-for gene in *.fa ; do
-  ./muscle3.8.31_i86linux64 -in $gene -out muscle_$gene -maxiters 1 -diags
-done
-
-# IQ-TREE
-module load iqtree/2.2.2.6
-for muscle in muscle_* ; do
-  iqtree2 -s ${muscle}
-done
-
-# Unir árboles
 cat *.treefile > Alltrees.tree
 ```
 
 ---
 
-## Pruebas realizadas
+## Visualización
 
-- Se ejecutaron alineamientos individuales para los tres genes.  
-- Se generaron árboles filogenéticos independientes para cada gen.  
-- Los archivos `.tree` fueron visualizados con FigTree.
+- Los archivos `.treefile` individuales y `Alltrees.tree` pueden ser visualizados en **FigTree**.
 
 ---
 
-## Despliegue
+## Resultados
 
-No aplica despliegue en vivo. Todos los análisis se realizan en entorno local/supercomputadora.
-
----
-
-## Construido con
-
-- [MUSCLE](https://www.drive5.com/muscle/)
-- [IQ-TREE 2](http://www.iqtree.org/)
-- [FigTree](http://tree.bio.ed.ac.uk/software/figtree/)
-- [NCBI datasets CLI](https://www.ncbi.nlm.nih.gov/datasets/)
-- [Atom](https://atom.io/)
+- Se alinearon los tres genes por separado.
+- Se generaron árboles filogenéticos por cada gen.
+- Se combinó todo en un único archivo `Alltrees.tree`.
 
 ---
 
 ## Autores
 
-- **[Tu nombre completo]** — Análisis bioinformático y redacción del proyecto
+- **MIAO DUAN JIANG** — Análisis bioinformático y redacción del proyecto
 
 ---
 
 ## Licencia
 
-Este proyecto se desarrolla con fines educativos en la carrera de Bioingeniería – PUCE.
+Este proyecto se desarrolla con fines académicos en la carrera de Bioingeniería – PUCE.
 
 ---
 
 ## Agradecimientos
 
-- A los docentes del curso de Herramientas Bioinformáticas  
-- A NCBI por el acceso gratuito a datos genéticos  
-- A las herramientas de software libre utilizadas en este trabajo
+- A los docentes de la materia **Herramientas Bioinformáticas**  
+- A **NCBI**, **MUSCLE**, **IQ-TREE 2** y **FigTree** por sus recursos abiertos
 
 ---
 
