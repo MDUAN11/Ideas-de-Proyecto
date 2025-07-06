@@ -96,6 +96,31 @@ cat *.treefile > Alltrees.tree
 - Se generaron árboles filogenéticos por cada gen.
 - Se combinó todo en un único archivo `Alltrees.tree`.
 
+## Resultados Esperados
+
+### Árboles filogenéticos generados
+
+**Tree 1**
+![Tree 1](Results/tree1.jpeg)
+
+**Tree 2**
+![Tree 2](Results/tree2.jpeg)
+
+**Tree 3**
+![Tree 3](Results/tree3.jpeg)
+
+### Archivos de entrada visualizados
+
+**FMNL2**
+![FMNL2](Results/fasta1.jpeg)
+
+**FAP**
+![FAP](Results/fasta2.jpeg)
+
+**IFIH1**
+![IFIH1](Results/fasta3.jpeg)
+
+
 ---
 
 ## Autores
