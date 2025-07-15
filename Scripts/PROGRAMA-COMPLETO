@@ -1,0 +1,109 @@
+#!/bin/bash
+#$ -l h_rt=01:00:00,h_data=5G
+#$ -pe shared 1
+#$ -N GENES
+#$ -cwd
+#$ -o /u/scratch/d/dechavez/Bioinformatica-PUCE/HerrBio/MOLS/IDEA-DE-PROYECTO/logs/descarga.out
+#$ -e /u/scratch/d/dechavez/Bioinformatica-PUCE/HerrBio/MOLS/IDEAS-DE-PROYECTO/logs/descarga.err
+#$ -M dechavezv
+
+# Ir al directorio del proyecto
+cd /u/scratch/d/dechavez/Bioinformatica-PUCE/HerrBio/MOLS/IDEA-DE-酨ROYECTO
+
+# Crear carpeta de destino si no existe
+mkdir -p SECUENCIA
+# Descargar gen ort贸logo FAP
+./datasets download gene symbol FAP --ortholog Boidae --filename FAP_Boidae.zip
+
+# Descomprimir archivo
+unzip -o FAP_Boidae.zip
+
+# Mover y renombrar el archivo .fna a la carpeta SECUENCIA
+cp ncbi_dataset/data/rna.fna SECUENCIA/FAP.fa
+
+# Limpiar archivos temporales
+rm -rf ncbi_dataset FAP_Boidae.zip
+
+# Descargar gen ort贸logo FMNL2
+./datasets download gene symbol FMNL2 --ortholog Boidae --filename FMNL2_Boidae.zip
+unzip -o FMNL2_Boidae.zip
+cp ncbi_dataset/data/rna.fna SECUENCIA/FMNL2.fa
+rm -rf ncbi_dataset FMNL2_Boidae.zip
+
+# Descargar gen ort贸logo IFIH1
+./datasets download gene symbol IFIH1 --ortholog Boidae --filename IFIH1_Boidae.zip
+unzip -o IFIH1_Boidae.zip
+cp ncbi_dataset/data/rna.fna SECUENCIA/IFIH1.fa
+rm -rf ncbi_dataset IFIH1_Boidae.zip
+
+# Descargar gen ort贸logo FAPde otro familia Pythonidae para la comparacion
+./datasets download gene symbol FAP --ortholog Pythonidae --filename FAP_Pythonidae.zip
+
+# Descomprimir archivo
+unzip -o FAP_Pythonidae.zip
+
+# Mover y renombrar el archivo .fna a la carpeta SECUENCIA
+cp ncbi_dataset/data/rna.fna SECUENCIA/FAP_Pythonidae.fa
+
+# Limpiar archivos temporales
+rm -rf ncbi_dataset FAP_Pythonidae.zip
+
+# Descargar gen ort贸logo FMNL2(Pythonidae)
+./datasets download gene symbol FMNL2 --ortholog Pythonidae --filename FMNL2_Pythonidae.zip
+unzip -o FMNL2_Pythonidae.zip
+cp ncbi_dataset/data/rna.fna SECUENCIA/FMNL2_Pythonidae.fa
+rm -rf ncbi_dataset FMNL2_Pythonidae.zip
+
+# Descargar gen ort贸logo IFIH(Pythonidae)
+./datasets download gene symbol IFIH1 --ortholog Pythonidae --filename IFIH1_Pythonidae.zip
+unzip -o IFIH1_Pythonidae.zip
+cp ncbi_dataset/data/rna.fna SECUENCIA/IFIH1_Pythonidae.fa
+rm -rf ncbi_dataset IFIH1_Pythonidae.zip
+
+# Procesar nombres largos con Perl para acortar encabezados
+
+cd SECUENCIA
+for file in *.fa; do
+  perl -pe 's/(>\w+_\d+).\d\s\w+\s.\w+.(\w+)\s(\w+).*/\1_\2_\3/g' "$file" > tmp && mv tmp "$file"
+done
+
+# Escoger una sola secuencia en las fastas de la segunda Familia(Pythonidae)
+
+awk '/^>/{n++} n<=1' FAP_Pythonidae.fa > FAP_una_sola.fa
+awk '/^>/{n++} n<=1' FMNL2_Pythonidae.fa > FMNL2_una_sola.fa
+awk '/^>/{n++} n<=1' IFIH1_Pythonidae.fa > IFIH1_una_sola.fa
+rm FAP_Pythonidae.fa FMNL2_Pythonidae.fa IFIH1_Pythonidae.fa
+
+# Unir los dos fastas de las dos familia a una sola fasta
+
+cat FAP.fa FAP_una_sola.fa > FAP_UNIDA.fa
+cat FMNL2.fa FMNL2_una_sola.fa > FMNL2_UNIDA.fa
+cat IFIH1.fa IFIH1_una_sola.fa > IFIH1_UNIDA.fa
+rm FAP.fa FMNL2.fa IFIH1.fa *_sola.fa
+ 
+# Habilitar entorno de m贸dulos
+source /etc/profile.d/modules.sh
+
+# Copiar el ejecutable de MUSCLE si no lo has hecho ya
+cp ../../muscle3.8.31_i86linux64 ./
+
+# Alinear con MUSCLE cada archivo .fa
+for gene in *_UNIDA.fa; do
+    ./muscle3.8.31_i86linux64 -in $gene -out muscle_$gene -maxiters 1 -diags
+done
+
+# Cargar el m贸dulo de IQ-TREE
+. /u/local/Modules/default/init/modules.sh
+module load iqtree/2.2.2.6
+
+# Ejecutar IQ-TREE para cada alineamiento generado por MUSCLE
+for aln in muscle_*.fa; do
+    iqtree2 -s ${aln}
+done
+
+# Unir todos los archivos .treefile en uno solo
+cat *.treefile > Alltrees.tree
+
+# Mover Alltrees.tree al directorio IDEA-DE-PROYECTO
+mv Alltrees.tree ../
+
